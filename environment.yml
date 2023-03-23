@@ -1,0 +1,11 @@
+name: proxy
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - django
+  - pip
+  - pip:
+      - django-cors-headers
+prefix: C:\Users\washmall\Anaconda3\envs\proxy
