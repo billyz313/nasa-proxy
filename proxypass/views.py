@@ -1,7 +1,19 @@
 from __future__ import unicode_literals
+
+import distutils
+import json
 import urllib.request
+from .planet_utilities import get_planet_map_id
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import logging
+from logging.handlers import RotatingFileHandler
+
+print(__name__)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 
 @csrf_exempt
@@ -15,6 +27,42 @@ def proxy_nasa_youtube(request):
     callback_function_name = request.POST.get("callback", request.GET.get("callback", None))
     return get_http_response('https://www.youtube.com/feeds/videos.xml?playlist_id=PLiuUQ9asub3Qq1AQRirDI-naOwo1H5gaB',
                              callback_function_name)
+
+
+@csrf_exempt
+def get_planet_tile(request):
+    logger.debug("get_planet_tile was called")
+    try:
+        request_json = json.loads(request.body)
+        if request_json:
+            api_key = request_json.get('apiKey')
+            logger.error("API: " + api_key)
+            geometry = request_json.get('geometry')
+            start = request_json.get('dateFrom')
+            end = request_json.get('dateTo', None)
+            layer_count = request_json.get('layerCount', 1)
+            item_types = request_json.get('itemTypes', ['PSScene'])
+            buffer = int(request_json.get('buffer', 0.5))
+            add_similar = bool(distutils.util.strtobool(request_json.get('addsimilar', 'True')))
+            values = get_planet_map_id(api_key, geometry, start, end, layer_count, item_types, buffer, add_similar)
+
+        else:
+            api_key = request.POST.get("apiKey", request.GET.get("apiKey", None))
+            geometry = request.POST.get("geometry", request.GET.get("geometry", None))
+            start = request.POST.get("dateFrom", request.GET.get("dateFrom", None))
+            end = request.POST.get("dateTo", request.GET.get("dateTo", None))
+            layer_count = request.POST.get("layerCount", request.GET.get("layerCount", 1))
+            item_types = request.POST.get("itemTypes", request.GET.get("itemTypes", ['PSScene3Band', 'PSScene4Band']))
+            buffer = float(request.POST.get("buffer", request.GET.get("buffer", 0.5)))
+            add_similar = bool(
+                distutils.util.strtobool(request.POST.get("addsimilar", request.GET.get("addsimilar", "True"))))
+            values = get_planet_map_id(api_key, geometry, start, end, layer_count, item_types, buffer, add_similar)
+
+    except Exception as e:
+        values = {
+            'errMsg': str(e)
+        }
+    return HttpResponse(json.dumps(values), content_type='application/json')
 
 
 def get_http_response(url, callback):

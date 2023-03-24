@@ -5,7 +5,11 @@ channels:
 dependencies:
   - python=3.9
   - django
+  - shapely
+  - python-dateutil
+  - requests
   - pip
   - pip:
       - django-cors-headers
+      - shapely-geojson
 prefix: C:\Users\washmall\Anaconda3\envs\proxy
