@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r".*",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
