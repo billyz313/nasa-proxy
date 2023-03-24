@@ -29,10 +29,6 @@ ALLOWED_HOSTS = ["*"]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r".*",
-]
-
 CORS_ALLOW_HEADERS = (
     'accept',
     'accept-encoding',
