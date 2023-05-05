@@ -13,4 +13,5 @@ urlpatterns = [
     path('getdata/', views.air_quality_get_data, name='air_quality_get_data'),
     path('getChartDataProcess/', views.get_chart_data_process, name='get_chart_data_process'),
     path('getLayerInfoStat/', views.get_layer_info_stat, name='get_layer_info_stat'),
+    path('timeseriesmodeldata/', views.time_series_model_data, name='time_series_model_data'),
 ]

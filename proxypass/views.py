@@ -35,6 +35,12 @@ def air_now_list(request):
 
 
 @csrf_exempt
+def time_series_model_data(request):
+    response = requests.post('http://smog.icimod.org/apps/airquality/timeseriesmodeldata/', json=json.loads(request.body))
+    return HttpResponse(response.content)
+
+
+@csrf_exempt
 def get_layer_info_stat(request):
     response = requests.post('http://smog.icimod.org/apps/airquality/getLayerInfoStat/', json=json.loads(request.body))
     return HttpResponse(response.content)
