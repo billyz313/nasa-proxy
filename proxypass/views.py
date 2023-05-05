@@ -4,16 +4,60 @@ import distutils
 import json
 import urllib.request
 from .planet_utilities import get_planet_map_id
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import logging
 from logging.handlers import RotatingFileHandler
+import requests
 
 print(__name__)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
+@csrf_exempt
+def aero_not_list(request):
+    return HttpResponse(
+        json.dumps(
+            json.load(
+                urllib.request.urlopen('http://hkh-aqx.servirglobal.net/api/v1/location/source/aero_not/list/'))),
+        content_type='application/json')
+
+
+@csrf_exempt
+def air_now_list(request):
+    return HttpResponse(
+        json.dumps(
+            json.load(
+                urllib.request.urlopen('http://hkh-aqx.servirglobal.net/api/v1/location/source/air_now/list/'))),
+        content_type='application/json')
+
+
+@csrf_exempt
+def get_layer_info_stat(request):
+    response = requests.post('http://smog.icimod.org/apps/airquality/getLayerInfoStat/', json=json.loads(request.body))
+    return HttpResponse(response.content)
+
+
+@csrf_exempt
+def get_chart_data_process(request):
+    response = requests.post('http://smog.icimod.org/apps/airquality/getChartDataProcess/', json=json.loads(request.body))
+    return HttpResponse(response.content)
+
+
+@csrf_exempt
+def air_quality_sliced_from_catalog(request):
+    post_data = request.POST
+    response = requests.post('http://smog.icimod.org/apps/airquality/slicedfromcatalog/', data=post_data)
+    return HttpResponse(response.content)
+
+
+@csrf_exempt
+def air_quality_get_data(request):
+    post_data = request.POST
+    response = requests.post('http://smog.icimod.org/apps/airquality/getData/', data=post_data)
+    return HttpResponse(response.content)
 
 
 @csrf_exempt
@@ -33,10 +77,11 @@ def proxy_nasa_youtube(request):
 def get_planet_tile(request):
     logger.debug("get_planet_tile was called")
     try:
-        request_json = json.loads(request.body)
+        request_json = ""
+        if request.body:
+            request_json = json.loads(request.body)
         if request_json:
             api_key = request_json.get('apiKey')
-            logger.error("API: " + api_key)
             geometry = request_json.get('geometry')
             start = request_json.get('dateFrom')
             end = request_json.get('dateTo', None)
@@ -44,6 +89,7 @@ def get_planet_tile(request):
             item_types = request_json.get('itemTypes', ['PSScene'])
             buffer = int(request_json.get('buffer', 0.5))
             add_similar = bool(distutils.util.strtobool(request_json.get('addsimilar', 'True')))
+
             values = get_planet_map_id(api_key, geometry, start, end, layer_count, item_types, buffer, add_similar)
 
         else:
@@ -51,12 +97,13 @@ def get_planet_tile(request):
             geometry = request.POST.get("geometry", request.GET.get("geometry", None))
             start = request.POST.get("dateFrom", request.GET.get("dateFrom", None))
             end = request.POST.get("dateTo", request.GET.get("dateTo", None))
-            layer_count = request.POST.get("layerCount", request.GET.get("layerCount", 1))
-            item_types = request.POST.get("itemTypes", request.GET.get("itemTypes", ['PSScene3Band', 'PSScene4Band']))
-            buffer = float(request.POST.get("buffer", request.GET.get("buffer", 0.5)))
+            layer_count = int(request.POST.get("layerCount", request.GET.get("layerCount", 1)))
+            item_types = request.POST.get("itemTypes", request.GET.get("itemTypes", ['PSScene']))
+            buffer = int(request.POST.get("buffer", request.GET.get("buffer", 0.5)))
             add_similar = bool(
                 distutils.util.strtobool(request.POST.get("addsimilar", request.GET.get("addsimilar", "True"))))
-            values = get_planet_map_id(api_key, geometry, start, end, layer_count, item_types, buffer, add_similar)
+
+            values = get_planet_map_id(api_key, json.loads(geometry), start, end, layer_count, item_types, buffer, add_similar)
 
     except Exception as e:
         values = {
