@@ -55,14 +55,14 @@ def get_chart_data_process(request):
 @csrf_exempt
 def air_quality_sliced_from_catalog(request):
     post_data = request.POST
-    response = requests.post('http://smog.icimod.org/apps/airquality/slicedfromcatalog/', data=post_data)
+    response = requests.post('http://smog.icimod.org/apps/airquality/slicedfromcatalog/', json=json.loads(request.body))
     return HttpResponse(response.content)
 
 
 @csrf_exempt
 def air_quality_get_data(request):
     post_data = request.POST
-    response = requests.post('http://smog.icimod.org/apps/airquality/getData/', data=post_data)
+    response = requests.post('http://smog.icimod.org/apps/airquality/getData/', json=json.loads(request.body))
     return HttpResponse(response.content)
 
 
