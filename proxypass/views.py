@@ -41,6 +41,15 @@ def time_series_model_data(request):
 
 
 @csrf_exempt
+def dhm_station_data(request):
+    # Check if request body exists and is not empty
+    request_data = request.POST.dict()
+
+    response = requests.post('https://www.dhm.gov.np/site/getRiverWatchBySeriesId', data=request_data, verify=False)
+    return JsonResponse(response.json(), safe=False, status=response.status_code)
+
+
+@csrf_exempt
 def get_layer_info_stat(request):
     response = requests.post('http://smog.icimod.org/apps/airquality/getLayerInfoStat/', json=json.loads(request.body))
     return HttpResponse(response.content)

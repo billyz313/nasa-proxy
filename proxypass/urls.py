@@ -14,4 +14,6 @@ urlpatterns = [
     path('getChartDataProcess/', views.get_chart_data_process, name='get_chart_data_process'),
     path('getLayerInfoStat/', views.get_layer_info_stat, name='get_layer_info_stat'),
     path('timeseriesmodeldata/', views.time_series_model_data, name='time_series_model_data'),
+
+    path('dhm_station_data/', views.dhm_station_data, name='dhm_station_data'),
 ]
